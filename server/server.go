@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/juhovuori/minitwitter-srv/store"
+	"github.com/juhovuori/notes-srv/store"
 )
 
 type Server interface {

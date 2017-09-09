@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/juhovuori/minitwitter-srv/server"
-	"github.com/juhovuori/minitwitter-srv/store"
+	"github.com/juhovuori/notes-srv/server"
+	"github.com/juhovuori/notes-srv/store"
 )
 
 func usage(cmd string) {
