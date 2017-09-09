@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/juhovuori/minitwitter-srv/server"
 	"github.com/juhovuori/minitwitter-srv/store"
 )
 
 func usage(cmd string) {
 	fmt.Printf("Usage:\n")
 	fmt.Printf("  %s migrate\n", cmd)
-	fmt.Printf("  %s http\n", cmd)
+	fmt.Printf("  %s server\n", cmd)
 	fmt.Printf("  %s list\n", cmd)
 	fmt.Printf("  %s get [<id> ...]\n", cmd)
 	fmt.Printf("  %s put <message>\n", cmd)
@@ -36,9 +37,18 @@ func migrate() {
 	}
 }
 
-func http() {
-	fmt.Printf("Not implemented\n")
-	os.Exit(1)
+func server_() {
+	store := mustGetStore()
+	server, err := server.New(store)
+	if err != nil {
+		fmt.Printf("Failed to create server: %s\n", err)
+		os.Exit(1)
+	}
+	err = server.Start()
+	if err != nil {
+		fmt.Printf("Server failed: %s\n", err)
+		os.Exit(1)
+	}
 }
 
 func list() {

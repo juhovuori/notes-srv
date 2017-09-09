@@ -12,8 +12,8 @@ func main() {
 	switch os.Args[1] {
 	case "migrate":
 		migrate()
-	case "http":
-		http()
+	case "server":
+		server_()
 	case "get":
 		get(os.Args[2:])
 	case "list":
