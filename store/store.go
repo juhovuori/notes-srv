@@ -55,7 +55,21 @@ func (s impl) GetNote(ID string) (Note, error) {
 }
 
 func (s impl) GetNotes() ([]Note, error) {
-	return []Note{}, nil
+	buffer := []Note{}
+	rows, err := s.db.Query("SELECT id, data, created FROM notes ORDER BY created DESC LIMIT 20")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		note := noteImpl{}
+		err := rows.Scan(&note.id, &note.data, &note.created)
+		if err != nil {
+			return buffer, err
+		}
+		buffer = append(buffer, note)
+	}
+	return buffer, nil
 }
 
 func New(url string) (Store, error) {
