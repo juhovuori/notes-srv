@@ -1,23 +1,24 @@
 package main
 
 import (
-	"fmt"
 	"os"
-
-	"github.com/juhovuori/minitwitter-srv/store"
+	"strings"
 )
 
 func main() {
-	url := "postgres://postgres:mintwitter@localhost:5432/?sslmode=disable"
-	store, err := store.New(url)
-	if err != nil {
-		fmt.Printf("Could not open store: %s\n", err)
-		os.Exit(1)
+	if len(os.Args) < 2 {
+		usage(os.Args[0])
 	}
-	err = store.Migrate()
-	if err != nil {
-		fmt.Printf("Could not run migrations: %s\n", err)
-		os.Exit(1)
+	switch os.Args[1] {
+	case "migrate":
+		migrate()
+	case "http":
+		http()
+	case "get":
+		get(os.Args[2:])
+	case "put":
+		put(strings.Join(os.Args[2:], " "))
+	default:
+		usage(os.Args[0])
 	}
-	return
 }

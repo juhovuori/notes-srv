@@ -1,6 +1,7 @@
 package store
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/satori/go.uuid"
@@ -9,13 +10,13 @@ import (
 type Note interface {
 	ID() string
 	Data() string
-	Created() int64
+	Created() time.Time
 }
 
 type noteImpl struct {
 	id      uuid.UUID
 	data    string
-	created int64
+	created time.Time
 }
 
 func (i noteImpl) ID() string {
@@ -26,10 +27,14 @@ func (i noteImpl) Data() string {
 	return i.data
 }
 
-func (i noteImpl) Created() int64 {
+func (i noteImpl) Created() time.Time {
 	return i.created
 }
 
+func (i noteImpl) String() string {
+	return fmt.Sprintf("%s(%v): %s", i.ID(), i.Created(), i.Data())
+}
+
 func NewNote(data string) Note {
-	return noteImpl{uuid.NewV4(), data, time.Now().UnixNano()}
+	return noteImpl{uuid.NewV4(), data, time.Now()}
 }

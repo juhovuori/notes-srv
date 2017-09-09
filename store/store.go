@@ -18,7 +18,7 @@ type Store interface {
 }
 
 type NoteStore interface {
-	PutNote(note string) error
+	PutNote(note string) (Note, error)
 	GetNote(id string) (Note, error)
 	GetNotes() ([]Note, error)
 }
@@ -33,14 +33,23 @@ func (s impl) Migrate() error {
 
 }
 
-func (s impl) PutNote(note string) error {
-	return NotImplemented
+func (s impl) PutNote(data string) (Note, error) {
+	note := NewNote(data)
+	_, err := s.db.Exec("INSERT INTO notes (id, data, created) VALUES ($1, $2, $3)", note.ID(), note.Data(), note.Created())
+	if err != nil {
+		return nil, err
+	}
+	return note, nil
 }
 
-func (s impl) GetNote(id string) (Note, error) {
-	//age := 21
-	//rows, err := s.db.Query("SELECT name FROM users WHERE age = $1", age)
-	return nil, NotFound
+func (s impl) GetNote(ID string) (Note, error) {
+	var note noteImpl
+	row := s.db.QueryRow("SELECT id, data, created FROM notes WHERE id = $1", ID)
+	err := row.Scan(note.id, note.data, note.created)
+	if err != nil {
+		return nil, err
+	}
+	return note, NotFound
 }
 
 func (s impl) GetNotes() ([]Note, error) {
