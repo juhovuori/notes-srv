@@ -1,4 +1,5 @@
 DB=postgres://postgres:notes@localhost:5432/?sslmode=disable
+ARTIFACT_BUCKET=notes-artifacts-20170909
 
 .PHONY: start-dev
 stop-dev:
@@ -31,3 +32,7 @@ build:
 run: export DATABASE = ${DB}
 run:
 	./notes-srv server
+
+.PHONY: publish
+publish:
+	aws s3 cp notes-srv s3://${ARTIFACT_BUCKET}/binaries/notes-srv
