@@ -8,8 +8,7 @@ import (
 )
 
 var (
-	NotFound       = errors.New("Not found")
-	NotImplemented = errors.New("Not implemented")
+	ErrNotFound = errors.New("Not found")
 )
 
 type Store interface {
@@ -45,11 +44,14 @@ func (s impl) PutNote(data string) (Note, error) {
 func (s impl) GetNote(ID string) (Note, error) {
 	var note noteImpl
 	row := s.db.QueryRow("SELECT id, data, created FROM notes WHERE id = $1", ID)
-	err := row.Scan(note.id, note.data, note.created)
+	err := row.Scan(&note.id, &note.data, &note.created)
+	if err == sql.ErrNoRows {
+		return nil, ErrNotFound
+	}
 	if err != nil {
 		return nil, err
 	}
-	return note, NotFound
+	return note, nil
 }
 
 func (s impl) GetNotes() ([]Note, error) {

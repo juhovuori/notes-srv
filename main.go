@@ -16,6 +16,8 @@ func main() {
 		http()
 	case "get":
 		get(os.Args[2:])
+	case "list":
+		list()
 	case "put":
 		put(strings.Join(os.Args[2:], " "))
 	default:
