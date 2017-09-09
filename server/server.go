@@ -3,6 +3,8 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"time"
 
@@ -47,8 +49,21 @@ func (s *impl) get(id string) (note, error) {
 	return note{n.ID(), n.Created(), n.Data()}, nil
 }
 
+func (s *impl) post(body io.Reader) (note, error) {
+	data, err := ioutil.ReadAll(body)
+	if err != nil {
+		return note{}, err
+	}
+	n, err := s.store.PutNote(string(data))
+	if err != nil {
+		return note{}, err
+	}
+	return note{n.ID(), n.Created(), n.Data()}, nil
+}
+
 func (s *impl) handler(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Path[len("/"):]
+	defer r.Body.Close()
 	if r.Method == "GET" && id == "" {
 		notes, err := s.list()
 		sendResponse(w, notes, err)
@@ -60,8 +75,8 @@ func (s *impl) handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if r.Method == "POST" {
-		notes, err := s.list()
-		sendResponse(w, notes, err)
+		note, err := s.post(r.Body)
+		sendResponse(w, note, err)
 		return
 	}
 }
