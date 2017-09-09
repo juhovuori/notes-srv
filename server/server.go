@@ -39,24 +39,46 @@ func (s *impl) list() (notes, error) {
 	return res, nil
 }
 
+func (s *impl) get(id string) (note, error) {
+	n, err := s.store.GetNote(id)
+	if err != nil {
+		return note{}, err
+	}
+	return note{n.ID(), n.Created(), n.Data()}, nil
+}
+
 func (s *impl) handler(w http.ResponseWriter, r *http.Request) {
-	//id := r.URL.Path[len("/"):]
-	//method := r.Method
-	notes, err := s.list()
+	id := r.URL.Path[len("/"):]
+	if r.Method == "GET" && id == "" {
+		notes, err := s.list()
+		sendResponse(w, notes, err)
+		return
+	}
+	if r.Method == "GET" && id != "" {
+		note, err := s.get(id)
+		sendResponse(w, note, err)
+		return
+	}
+	if r.Method == "POST" {
+		notes, err := s.list()
+		sendResponse(w, notes, err)
+		return
+	}
+}
+
+func sendResponse(w http.ResponseWriter, data interface{}, err error) {
+	if err != nil {
+		w.WriteHeader(500)
+		fmt.Fprintf(w, err.Error())
+		return
+	}
+	res, err := json.Marshal(data)
 	if err != nil {
 		w.WriteHeader(500)
 		fmt.Fprintf(w, err.Error())
 		return
 	}
 	w.WriteHeader(200)
-	res, err := json.Marshal(notes)
-	if err != nil {
-		w.WriteHeader(500)
-		fmt.Fprintf(w, err.Error())
-		return
-	}
-	fmt.Println(len(notes.Notes))
-	fmt.Println(res)
 	w.Write(res)
 }
 
