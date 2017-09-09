@@ -18,8 +18,8 @@ func usage(cmd string) {
 	os.Exit(1)
 }
 
-func mustGetStore() store.Store {
-	url := "postgres://postgres:mintwitter@localhost:5432/?sslmode=disable"
+func mustGetStore(cfg Config) store.Store {
+	url := cfg.DB
 	store, err := store.New(url)
 	if err != nil {
 		fmt.Printf("Could not open store: %s\n", err)
@@ -28,8 +28,18 @@ func mustGetStore() store.Store {
 	return store
 }
 
+func mustConfigure() Config {
+	cfg, err := configure()
+	if err != nil {
+		fmt.Printf("Could not configure: %s\n", err)
+		os.Exit(1)
+	}
+	return cfg
+}
+
 func migrate() {
-	store := mustGetStore()
+	cfg := mustConfigure()
+	store := mustGetStore(cfg)
 	err := store.Migrate()
 	if err != nil {
 		fmt.Printf("Could not run migrations: %s\n", err)
@@ -38,7 +48,8 @@ func migrate() {
 }
 
 func server_() {
-	store := mustGetStore()
+	cfg := mustConfigure()
+	store := mustGetStore(cfg)
 	server, err := server.New(store)
 	if err != nil {
 		fmt.Printf("Failed to create server: %s\n", err)
@@ -52,7 +63,8 @@ func server_() {
 }
 
 func list() {
-	store := mustGetStore()
+	cfg := mustConfigure()
+	store := mustGetStore(cfg)
 	notes, err := store.GetNotes()
 	if err != nil {
 		fmt.Printf("Failed to get notes: %s\n", err)
@@ -64,7 +76,8 @@ func list() {
 }
 
 func get(ids []string) {
-	store := mustGetStore()
+	cfg := mustConfigure()
+	store := mustGetStore(cfg)
 	status := 0
 	for _, id := range ids {
 		note, err := store.GetNote(id)
@@ -79,7 +92,8 @@ func get(ids []string) {
 }
 
 func put(data string) {
-	store := mustGetStore()
+	cfg := mustConfigure()
+	store := mustGetStore(cfg)
 	note, err := store.PutNote(data)
 	if err != nil {
 		fmt.Printf("Failed to put: %s\n", err)
